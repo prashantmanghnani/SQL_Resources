@@ -1,0 +1,151 @@
+SQL Module End Test Solution File
+1. Write a SQL query to list the comments made on photo_id 3.
+
+
+
+SELECT comment_text FROM comments WHERE photo_id = 3;
+
+
+
+2. Retrieve the count of followers for each followee. Display the followee_id and the count of followers, ordered by the count in descending order.
+
+
+
+SELECT followee_id, COUNT(follower_id) AS follower_count
+
+FROM follows
+
+GROUP BY followee_id
+
+ORDER BY follower_count DESC;
+
+
+
+
+
+3. Write a SQL query to find users with usernames containing at least two consecutive digits
+
+
+
+SELECT username
+
+FROM users
+
+WHERE username REGEXP '[0-9]{2,}';
+
+
+
+4. Write an SQL query to retrieve tags that do not contain any numeric digits.
+
+
+
+SELECT tag_name
+
+FROM tags
+
+WHERE tag_name NOT REGEXP '[0-9]';
+
+
+
+
+
+5. Write an SQL query to find the First and Last Follower for Each User.
+
+
+
+SELECT followee_id, follower_id,
+
+       FIRST_VALUE(follower_id) OVER (PARTITION BY followee_id ORDER BY created_at ASC) AS first_follower_id,
+
+       LAST_VALUE(follower_id) OVER (PARTITION BY followee_id ORDER BY created_at ASC) AS last_follower_id
+
+FROM follows;
+
+
+
+6. Write an SQL query to Rank Users by Follower Count Using ROW_NUMBER.
+
+
+
+SELECT follower_id, ROW_NUMBER() OVER (ORDER BY follower_count DESC) AS follower_row_number
+
+FROM (
+
+    SELECT follower_id, COUNT(*) AS follower_count
+
+    FROM follows
+
+    GROUP BY follower_id
+
+) AS follower_counts;
+
+
+
+7. Write an SQL query to calculate the Range of Tag IDs
+
+
+
+SELECT id, tag_name,
+
+       MAX(id) OVER (ORDER BY id ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING) AS max_id,
+
+       MIN(id) OVER (ORDER BY id ROWS BETWEEN 2 PRECEDING AND 2 FOLLOWING) AS min_id
+
+FROM tags;
+
+
+
+8. Write a query using a CTE to retrieve all the photo-tag associations in the photo_tags table. Display the photo_id and tag_id.
+
+
+
+WITH PhotoTagAssociations AS (
+
+    SELECT photo_id, tag_id
+
+    FROM photo_tags
+
+)
+
+SELECT * FROM PhotoTagAssociations;
+
+
+
+
+
+
+
+9. Write an SQL query to find the photo with the highest number of tags and display its photo_id and the count of tags.
+
+
+
+SELECT photo_id, COUNT(tag_id) AS tag_count
+
+FROM photo_tags
+
+GROUP BY photo_id
+
+ORDER BY tag_count DESC
+
+LIMIT 1;
+
+
+
+10. Write an SQL query to retrieve all photos that have tags containing the word "beach" anywhere in the tag name using the REGEXP operator.
+
+
+
+SELECT photo_id
+
+FROM photo_tags
+
+WHERE tag_id IN (
+
+    SELECT tag_id
+
+    FROM tags
+
+    WHERE tag_name REGEXP 'beach'
+
+);
+
